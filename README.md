@@ -7,10 +7,15 @@ A **bitmap** is an array of bits, where each bit represents a state (e.g., true/
 Common operations performed using bitmap algorithms include:
 
 **Set**: Set a particular bit to 1 or 0, indicating the presence or absence of an element in a dataset.
+
 **Get**: Retrieve the value of a specific bit, indicating the presence or absence of an element in a dataset.
+
 **Count**: Count the number of set bits (1s) in the bitmap, representing the number of elements in the dataset.
+
 **Union**: Combine two bitmaps using the bitwise OR operation, resulting in a new bitmap representing the union of two datasets.
+
 **Intersection**: Combine two bitmaps using the bitwise AND operation, resulting in a new bitmap representing the intersection of two datasets.
+
 **Difference**: Combine two bitmaps using the bitwise AND and NOT operations, resulting in a new bitmap representing the difference between two datasets.
 
 **Bitmap algorithms** can be applied to various use cases, such as databases, search engines, and graphics rendering. In the context of Uniswap V3, the TickBitmap is used to represent and manipulate the ticks where liquidity has been provided in a compact and efficient manner, allowing for optimized operations when working with the liquidity provided in the protocol.
