@@ -20,7 +20,7 @@ Common operations performed using bitmap algorithms include:
 
 **Bitmap algorithms** can be applied to various use cases, such as databases, search engines, and graphics rendering. In the context of Uniswap V3, the TickBitmap is used to represent and manipulate the ticks where liquidity has been provided in a compact and efficient manner, allowing for optimized operations when working with the liquidity provided in the protocol.
 
-## Break down Bitmap algorithm in case of UniswapV3
+## Break down Bitmap algorithm in the case of UniswapV3
 
 **Assume we have initialized ticks at the following tick indices: 20, 40, 50, 80, 110, 120, 130, 200, 300.**
 
@@ -37,13 +37,14 @@ Common operations performed using bitmap algorithms include:
         wordPos = compressed >> 8 -> (0)
         bitPos = compressed  % 256 -> (2)
         mask = 1 << bitPos -> (4)
+        Bitmap[wordPos] -> (0)
 
-        0 0 0 0
-        1 1 1 1
-        1 0 0 0  ( 0 XOR 4) 
-        0 1 1 1
-        -----------------
-        1 0 0 0 -> Bitmap[wordPos] = 0 ^ mask -> 4
+        1 1 1 1 -> NOT Bitmap[wordPos]
+        1 0 0 0 -> mask
+        0 0 0 0 -> Bitmap[wordPos]
+        0 1 1 1 -> NOT mask
+        --------------------------------------------------------------------------
+        1 0 0 0 -> Bitmap[wordPos] = Bitmap[wordPos] ^ mask -> 4
 
     Second loop:
         tick = 40
@@ -51,16 +52,17 @@ Common operations performed using bitmap algorithms include:
         wordPos = compressed >> 8 -> (0)
         bitPos = compressed  % 256 -> (4)
         mask = 1 << bitPos -> (16)
+        Bitmap[wordPos] -> (4)
 
-        0 1 0 0 0
-        1 1 1 1 1
-        1 0 0 0 0 (4 XOR 16) 
-        0 1 1 1 1
-        -----------------
-        1 1 0 0 0 -> Bitmap[wordPos] = 4 ^ mask -> (20) 
+        1 0 1 1 1 -> NOT Bitmap[wordPos]
+        1 0 0 0 0 -> mask
+        0 1 0 0 0 -> Bitmap[wordPos]
+        0 1 1 1 1 -> NOT mask
+        --------------------------------------------------------------------------
+        1 1 0 0 0 -> Bitmap[wordPos] = Bitmap[wordPos] ^ mask -> (20) 
 
-    .   .   .   .   .
-    .   .   .   .   .
+        .   .   .   .   .
+        .   .   .   .   .
 
     last loop:
         tick = 300
@@ -68,13 +70,14 @@ Common operations performed using bitmap algorithms include:
         wordPos = compressed >> 8 -> (0)
         bitPos = compressed  % 256 -> (30)
         mask = 1 << bitPos -> (1073741824)
+        Bitmap[wordPos] -> (14644)
 
-        0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 1 0 0 1 1 0 1 0 0
-        0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 1 1 0 1 1 0 0 1 0 1 1
-        1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   (1063220 XOR 1073741824)
-        0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-        ---------------------------------------------------------------------
-        1 1 0 0 0 -> Bitmap[wordPos] = 4 ^ mask -> (20) 
+        1 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 0 0 0 1 1 0 1 1 0 0 1 0 1 1 -> NOT Bitmap[wordPos]
+        1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -> mask
+        0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 1 0 0 1 1 0 1 0 0 -> Bitmap[wordPos]
+        0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 -> NOT mask
+        --------------------------------------------------------------------------
+        1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 1 0 0 1 1 0 1 0 0 -> Bitmap[wordPos] = Bitmap[wordPos] ^ mask -> (1074805044) 
 
 ## **Finding Next Initialized Tick Within One Word Step**
 
